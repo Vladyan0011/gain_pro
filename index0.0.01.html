@@ -1,0 +1,733 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:#f2f2f7;min-height:100vh;color:#1c1c1e}
+.screen{display:none;max-width:430px;margin:0 auto;padding-bottom:20px;min-height:100vh}
+.screen.active{display:block}
+.hdr{background:#fff;padding:16px 20px 12px;border-bottom:.5px solid rgba(0,0,0,.12);position:sticky;top:0;z-index:20}
+.hdr h1{font-size:20px;font-weight:700;letter-spacing:-.5px}
+.hdr-sub{font-size:13px;color:#8e8e93;margin-top:2px}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.back-btn{font-size:15px;color:#007aff;background:none;border:none;cursor:pointer;font-weight:500;padding:0}
+.pad{padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:.5px solid rgba(0,0,0,.08)}
+.btn-primary{width:100%;padding:14px;border-radius:13px;background:#007aff;color:#fff;font-size:16px;font-weight:600;border:none;cursor:pointer;letter-spacing:-.2px}
+.btn-primary:active{opacity:.8;transform:scale(.98)}
+.btn-primary.green{background:#34c759}
+.btn-primary.red{background:#ff3b30}
+.btn-primary.gray{background:#8e8e93}
+.btn-secondary{width:100%;padding:12px;border-radius:13px;background:#f2f2f7;color:#007aff;font-size:15px;font-weight:500;border:none;cursor:pointer;margin-top:8px}
+.btn-secondary:active{opacity:.7}
+.btn-sm{font-size:13px;padding:6px 14px;border-radius:8px;border:.5px solid #007aff;background:none;color:#007aff;cursor:pointer;font-weight:500}
+.btn-sm.red{border-color:#ff3b30;color:#ff3b30}
+.btn-sm.green{border-color:#34c759;color:#34c759;background:#34c75912}
+.btn-sm.gray{border-color:#8e8e93;color:#8e8e93}
+input,select{width:100%;padding:11px 13px;border-radius:10px;border:.5px solid rgba(0,0,0,.15);background:#f2f2f7;font-size:15px;font-family:inherit;color:#1c1c1e;outline:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:#007aff;background:#fff}
+.inp-row{display:grid;gap:8px}
+.inp-row.two{grid-template-columns:1fr 1fr}
+.inp-row.three{grid-template-columns:1fr 1fr 1fr}
+.label{font-size:12px;font-weight:500;color:#8e8e93;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;display:block}
+.section-title{font-size:13px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;padding:0}
+/* Workout templates list */
+.tmpl-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;border:.5px solid rgba(0,0,0,.08);cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s}
+.tmpl-item:active{background:#f0f0f5}
+.tmpl-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.tmpl-info{flex:1}
+.tmpl-name{font-size:16px;font-weight:600;margin-bottom:3px}
+.tmpl-meta{font-size:13px;color:#8e8e93}
+.tmpl-arrow{color:#c7c7cc;font-size:18px}
+.tmpl-actions{display:flex;gap:8px;margin-top:8px}
+/* Exercise card in template editor */
+.ex-card{background:#f7f7f9;border-radius:10px;padding:12px;margin-bottom:8px;border:.5px solid rgba(0,0,0,.06)}
+.ex-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ex-card-name{font-size:14px;font-weight:600}
+/* Active workout — exercise view */
+.exercise-header{text-align:center;padding:20px 0 12px}
+.exercise-big-name{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.exercise-prev{display:inline-block;background:#f2f2f7;border-radius:8px;padding:4px 12px;font-size:13px;color:#8e8e93;font-weight:500}
+.weight-display{text-align:center;margin:8px 0 16px}
+.weight-big{font-size:52px;font-weight:700;letter-spacing:-2px;color:#1c1c1e;line-height:1}
+.weight-unit{font-size:18px;color:#8e8e93;font-weight:400}
+.weight-controls{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:8px}
+.w-btn{width:44px;height:44px;border-radius:12px;background:#f2f2f7;border:.5px solid rgba(0,0,0,.1);font-size:22px;font-weight:300;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1c1c1e}
+.w-btn:active{background:#e5e5ea;transform:scale(.93)}
+.sets-list{margin-bottom:12px}
+.set-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid rgba(0,0,0,.06)}
+.set-row:last-child{border-bottom:none}
+.set-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.set-warm{background:#ff9f0a18;color:#ff9f0a}
+.set-work{background:#007aff18;color:#007aff}
+.set-done{background:#34c75918;color:#34c759}
+.set-info{flex:1;font-size:14px}
+.set-status{font-size:12px;font-weight:600}
+/* Timer */
+.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.timer-circle{width:180px;height:180px;border-radius:50%;border:4px solid #007aff;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1c1c1e}
+.timer-num{font-size:52px;font-weight:700;color:#fff;letter-spacing:-2px;line-height:1}
+.timer-label{font-size:13px;color:#8e8e93;margin-top:4px}
+.timer-skip{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:15px;padding:12px 32px;border-radius:12px;cursor:pointer;font-weight:500}
+/* Progress bar */
+.progress-bar{height:4px;background:#e5e5ea;border-radius:2px;margin:0 20px 4px;overflow:hidden}
+.progress-fill{height:100%;background:#007aff;border-radius:2px;transition:width .3s}
+.progress-text{font-size:11px;color:#8e8e93;text-align:center;margin-bottom:8px}
+/* Summary */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sum-card{background:#f7f7f9;border-radius:10px;padding:12px;text-align:center}
+.sum-val{font-size:24px;font-weight:700;color:#007aff}
+.sum-label{font-size:12px;color:#8e8e93;margin-top:2px}
+/* Badge */
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-right:4px}
+.badge-warm{background:#ff9f0a18;color:#ff9f0a}
+.badge-work{background:#007aff18;color:#007aff}
+/* Next exercise picker */
+.next-ex-item{background:#f7f7f9;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;border:.5px solid transparent;transition:all .15s}
+.next-ex-item:active{background:#e5e5ea}
+.next-ex-item.selected{border-color:#007aff;background:#007aff08}
+/* History */
+.hist-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:.5px solid rgba(0,0,0,.08)}
+.hist-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.empty{text-align:center;padding:48px 20px;color:#8e8e93}
+.empty-icon{font-size:44px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:500;color:#1c1c1e;margin-bottom:6px}
+/* Stats */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-c{background:#fff;border-radius:12px;padding:14px;border:.5px solid rgba(0,0,0,.08)}
+.stat-v{font-size:28px;font-weight:700;color:#007aff}
+.stat-l{font-size:12px;color:#8e8e93;margin-top:2px}
+/* Bottom tabs */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,.95);border-top:.5px solid rgba(0,0,0,.12);display:flex;backdrop-filter:blur(20px);padding-bottom:env(safe-area-inset-bottom,0)}
+.tab{flex:1;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none}
+.tab-icon{font-size:22px;line-height:1}
+.tab-lbl{font-size:10px;color:#8e8e93;font-weight:500}
+.tab.active .tab-lbl{color:#007aff}
+.main-content{padding-bottom:80px}
+</style>
+
+<!-- SCREEN: Home / Templates -->
+<div class="screen active" id="s-home">
+  <div class="hdr">
+    <div class="hdr-row">
+      <h1>Тренировки</h1>
+      <button class="btn-sm" onclick="showScreen('s-create-tmpl')">+ Шаблон</button>
+    </div>
+    <div class="hdr-sub" id="home-date"></div>
+  </div>
+  <div class="main-content" style="padding:16px">
+    <div id="tmpl-list"></div>
+    <div class="section-title">История</div>
+    <div id="home-history"></div>
+  </div>
+  <div class="tabbar">
+    <button class="tab active" onclick="goHome()"><span class="tab-icon">🏠</span><span class="tab-lbl">Главная</span></button>
+    <button class="tab" onclick="showScreen('s-stats')"><span class="tab-icon">📊</span><span class="tab-lbl">Статистика</span></button>
+  </div>
+</div>
+
+<!-- SCREEN: Create/Edit Template -->
+<div class="screen" id="s-create-tmpl">
+  <div class="hdr">
+    <div class="hdr-row">
+      <button class="back-btn" onclick="showScreen('s-home')">← Назад</button>
+      <h1 id="tmpl-editor-title">Новый шаблон</h1>
+      <button class="btn-sm" onclick="saveTmpl()">Сохранить</button>
+    </div>
+  </div>
+  <div class="main-content pad">
+    <div class="card">
+      <label class="label">Название тренировки</label>
+      <input id="tmpl-name-input" placeholder="Например: Тяни, Жми, Ноги..." maxlength="30">
+      <div style="margin-top:10px">
+        <label class="label">Иконка</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="icon-picker">
+          <span class="icon-opt" onclick="pickIcon(this)" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent">💪</span>
+          <span class="icon-opt" onclick="pickIcon(this)" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent">🏋️</span>
+          <span class="icon-opt" onclick="pickIcon(this)" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent">🦵</span>
+          <span class="icon-opt" onclick="pickIcon(this)" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent">🤸</span>
+          <span class="icon-opt" onclick="pickIcon(this)" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent">🏃</span>
+          <span class="icon-opt" onclick="pickIcon(this)" style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent">🔥</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Упражнения</div>
+    <div id="tmpl-ex-list"></div>
+    <div class="card">
+      <label class="label">Добавить упражнение</label>
+      <select id="new-ex-select" style="margin-bottom:10px">
+        <option value="">Выбрать...</option>
+        <option>Становая тяга</option><option>Тяга к поясу</option><option>Тяга гантели</option>
+        <option>Подтягивания</option><option>Горизонтальная тяга</option><option>Шраги</option>
+        <option>Жим лёжа</option><option>Жим стоя</option><option>Разводка</option>
+        <option>Приседания</option><option>Выпады</option><option>Жим ногами</option>
+        <option>Бицепс со штангой</option><option>Молоток</option><option>Трицепс на блоке</option>
+        <option>Планка</option><option>Пресс</option><option>Бег</option>
+      </select>
+      <div class="inp-row three" style="margin-bottom:10px">
+        <div><label class="label">Подходы</label><input type="number" id="new-ex-sets" placeholder="4" min="1" max="10"></div>
+        <div><label class="label">Повторы</label><input type="number" id="new-ex-reps" placeholder="8" min="1" max="50"></div>
+        <div><label class="label">Вес (кг)</label><input type="number" id="new-ex-weight" placeholder="0" min="0" step="2.5"></div>
+      </div>
+      <button class="btn-primary" style="font-size:14px;padding:11px" onclick="addExToTmpl()">+ Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: Pre-workout (set today's weight) -->
+<div class="screen" id="s-prestart">
+  <div class="hdr">
+    <div class="hdr-row">
+      <button class="back-btn" onclick="showScreen('s-home')">← Назад</button>
+      <h1 id="prestart-title">Настройка</h1>
+      <span></span>
+    </div>
+    <div class="hdr-sub">Укажи веса на сегодня</div>
+  </div>
+  <div class="main-content pad" id="prestart-list"></div>
+  <div style="padding:0 16px 20px;position:sticky;bottom:0;background:#f2f2f7;padding-top:8px">
+    <button class="btn-primary green" onclick="startWorkout()">Начать тренировку →</button>
+  </div>
+</div>
+
+<!-- SCREEN: Active exercise -->
+<div class="screen" id="s-exercise">
+  <div class="hdr">
+    <div class="hdr-row">
+      <button class="back-btn" onclick="if(confirm('Выйти из тренировки?'))goHome()">✕ Выйти</button>
+      <div style="text-align:center">
+        <div class="progress-text" id="ex-progress-text"></div>
+      </div>
+      <span style="width:60px"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="ex-progress-bar"></div></div>
+  </div>
+  <div class="main-content pad">
+    <div class="exercise-header">
+      <div class="exercise-big-name" id="ex-name-display"></div>
+      <div class="exercise-prev" id="ex-prev-display"></div>
+    </div>
+
+    <!-- Weight selector -->
+    <div class="card" style="text-align:center">
+      <label class="label" style="text-align:center">Рабочий вес сегодня</label>
+      <div class="weight-display">
+        <span class="weight-big" id="ex-weight-display">60</span>
+        <span class="weight-unit"> кг</span>
+      </div>
+      <div class="weight-controls">
+        <button class="w-btn" onclick="adjustWeight(-5)">−5</button>
+        <button class="w-btn" onclick="adjustWeight(-2.5)">−2.5</button>
+        <button class="w-btn" onclick="adjustWeight(2.5)">+2.5</button>
+        <button class="w-btn" onclick="adjustWeight(5)">+5</button>
+      </div>
+    </div>
+
+    <!-- Sets -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:15px;font-weight:600">Подходы</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" onclick="addSet('warm')">+ Разминка</button>
+          <button class="btn-sm green" onclick="addSet('work')">+ Рабочий</button>
+        </div>
+      </div>
+      <div class="sets-list" id="sets-list"></div>
+      <div id="active-set-form" style="display:none">
+        <div style="background:#007aff0a;border-radius:10px;padding:12px;border:.5px solid #007aff30">
+          <div class="inp-row two" style="margin-bottom:8px">
+            <div><label class="label">Повторы</label><input type="number" id="set-reps-inp" placeholder="8" min="1" max="50"></div>
+            <div><label class="label">Вес (кг)</label><input type="number" id="set-weight-inp" placeholder="60" min="0" step="2.5"></div>
+          </div>
+          <button class="btn-primary green" style="font-size:14px;padding:10px" onclick="completeSet()">✓ Подход выполнен</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="finishExercise()" id="finish-ex-btn">Завершить упражнение →</button>
+    <button class="btn-secondary" onclick="skipExercise()">Пропустить</button>
+  </div>
+</div>
+
+<!-- SCREEN: Next exercise picker (shown between exercises) -->
+<div class="screen" id="s-next">
+  <div class="hdr">
+    <div class="hdr-row">
+      <span></span>
+      <h1>Следующее</h1>
+      <span></span>
+    </div>
+  </div>
+  <div class="main-content pad">
+    <div class="card" id="prev-ex-summary"></div>
+    <div class="section-title">Следующее упражнение</div>
+    <div id="next-ex-options"></div>
+    <button class="btn-primary green" onclick="startNextExercise()" id="start-next-btn" style="margin-top:4px">Начать →</button>
+    <button class="btn-secondary red" onclick="finishWorkoutFull()" style="margin-top:8px;color:#ff3b30;background:#ff3b3008">Завершить тренировку</button>
+  </div>
+</div>
+
+<!-- SCREEN: Workout summary -->
+<div class="screen" id="s-summary">
+  <div class="hdr"><h1>Итоги тренировки 🎉</h1></div>
+  <div class="main-content pad" id="summary-content"></div>
+</div>
+
+<!-- SCREEN: Stats -->
+<div class="screen" id="s-stats">
+  <div class="hdr">
+    <div class="hdr-row">
+      <button class="back-btn" onclick="showScreen('s-home')">← Назад</button>
+      <h1>Статистика</h1>
+      <span></span>
+    </div>
+  </div>
+  <div class="main-content pad" id="stats-content"></div>
+</div>
+
+<!-- Timer overlay -->
+<div class="timer-overlay" id="timer-overlay" style="display:none">
+  <div class="timer-circle">
+    <div class="timer-num" id="timer-num">90</div>
+    <div class="timer-label">отдых</div>
+  </div>
+  <button class="timer-skip" onclick="skipTimer()">Пропустить →</button>
+</div>
+
+<script>
+// ===================== STATE =====================
+let templates = JSON.parse(localStorage.getItem('wt_templates')||'[]');
+let history = JSON.parse(localStorage.getItem('wt_history')||'[]');
+let editTmplId = null;
+let selectedIcon = '💪';
+let currentTmpl = null;
+let todayWeights = {};
+let session = null; // {tmplId, exercises:[{name,sets:[],workSets,warmSets}], exIdx, sets:[]}
+let timerInterval = null;
+let timerRemain = 0;
+
+const exIcons={'Становая тяга':'🏋️','Тяга к поясу':'💪','Тяга гантели':'💪','Подтягивания':'🤸','Горизонтальная тяга':'🔗','Шраги':'🦾','Жим лёжа':'🏋️','Жим стоя':'🏋️','Разводка':'🦋','Приседания':'🦵','Выпады':'🦵','Жим ногами':'🦵','Бицепс со штангой':'💪','Молоток':'🔨','Трицепс на блоке':'💪','Планка':'⏱️','Пресс':'🔥','Бег':'🏃'};
+const dayNames=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const monthNames=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+function save(){
+  localStorage.setItem('wt_templates',JSON.stringify(templates));
+  localStorage.setItem('wt_history',JSON.stringify(history));
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  renderHome();
+  showScreen('s-home');
+}
+
+// ===================== HOME =====================
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+  const tl=document.getElementById('tmpl-list');
+  if(templates.length===0){
+    tl.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Нет шаблонов</div><div style="font-size:13px">Создай первый шаблон тренировки</div></div>`;
+  } else {
+    tl.innerHTML='<div class="section-title">Шаблоны</div>'+templates.map(t=>{
+      const lastW=getLastWorkout(t.id);
+      const meta=lastW?`Последний раз: ${formatDate(lastW.date)}`:`${t.exercises.length} упражнений`;
+      return `<div class="tmpl-item" onclick="openPrestart('${t.id}')">
+        <div class="tmpl-icon" style="background:#007aff15">${t.icon}</div>
+        <div class="tmpl-info"><div class="tmpl-name">${t.name}</div><div class="tmpl-meta">${meta}</div></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn-sm" onclick="event.stopPropagation();editTmpl('${t.id}')">✎</button>
+          <button class="btn-sm red" onclick="event.stopPropagation();deleteTmpl('${t.id}')">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const hl=document.getElementById('home-history');
+  const recent=history.slice(0,3);
+  if(recent.length===0){hl.innerHTML='<div style="color:#8e8e93;font-size:14px;text-align:center;padding:20px">Нет завершённых тренировок</div>';return;}
+  hl.innerHTML=recent.map(w=>{
+    const exList=w.exercises.map(e=>`<span class="badge badge-work">${e.name}</span>`).join('');
+    return `<div class="hist-card"><div class="hist-header"><div><div style="font-weight:600;font-size:15px">${w.tmplName}</div><div style="font-size:12px;color:#8e8e93;margin-top:2px">${formatDate(w.date)} · ${w.exercises.length} упр.</div></div><button class="btn-sm red" onclick="deleteHistory('${w.id}')">✕</button></div><div>${exList}</div></div>`;
+  }).join('');
+}
+
+function formatDate(d){
+  const dt=new Date(d);
+  return `${dt.getDate()} ${monthNames[dt.getMonth()]}`;
+}
+
+function getLastWorkout(tmplId){
+  return history.find(h=>h.tmplId===tmplId)||null;
+}
+
+function deleteTmpl(id){
+  if(!confirm('Удалить шаблон?'))return;
+  templates=templates.filter(t=>t.id!==id);
+  save();renderHome();
+}
+
+function deleteHistory(id){
+  if(!confirm('Удалить запись?'))return;
+  history=history.filter(h=>h.id!==id);
+  save();renderHome();
+}
+
+// ===================== TEMPLATE EDITOR =====================
+function openCreateTmpl(){
+  editTmplId=null;
+  document.getElementById('tmpl-name-input').value='';
+  document.getElementById('tmpl-editor-title').textContent='Новый шаблон';
+  selectedIcon='💪';
+  document.querySelectorAll('.icon-opt').forEach(o=>o.style.border='2px solid transparent');
+  document.querySelectorAll('.icon-opt')[0].style.border='2px solid #007aff';
+  renderTmplExList([]);
+  showScreen('s-create-tmpl');
+}
+
+function editTmpl(id){
+  const t=templates.find(x=>x.id===id);
+  editTmplId=id;
+  document.getElementById('tmpl-name-input').value=t.name;
+  document.getElementById('tmpl-editor-title').textContent='Редактировать';
+  selectedIcon=t.icon;
+  document.querySelectorAll('.icon-opt').forEach(o=>{o.style.border='2px solid transparent';if(o.textContent===t.icon)o.style.border='2px solid #007aff';});
+  renderTmplExList(t.exercises);
+  showScreen('s-create-tmpl');
+}
+
+let tmplExercises=[];
+function renderTmplExList(exArr){
+  tmplExercises=[...exArr];
+  const el=document.getElementById('tmpl-ex-list');
+  if(tmplExercises.length===0){el.innerHTML='';return;}
+  el.innerHTML=tmplExercises.map((ex,i)=>`
+    <div class="ex-card">
+      <div class="ex-card-header">
+        <span class="ex-card-name">${exIcons[ex.name]||'🏋️'} ${ex.name}</span>
+        <button class="btn-sm red" onclick="removeTmplEx(${i})">✕</button>
+      </div>
+      <div style="font-size:13px;color:#8e8e93">${ex.sets}×${ex.reps} · ${ex.weight>0?ex.weight+' кг':'без веса'}</div>
+    </div>`).join('');
+}
+
+function addExToTmpl(){
+  const name=document.getElementById('new-ex-select').value;
+  const sets=parseInt(document.getElementById('new-ex-sets').value)||4;
+  const reps=parseInt(document.getElementById('new-ex-reps').value)||8;
+  const weight=parseFloat(document.getElementById('new-ex-weight').value)||0;
+  if(!name){alert('Выберите упражнение');return;}
+  tmplExercises.push({name,sets,reps,weight});
+  document.getElementById('new-ex-select').value='';
+  document.getElementById('new-ex-sets').value='';
+  document.getElementById('new-ex-reps').value='';
+  document.getElementById('new-ex-weight').value='';
+  renderTmplExList(tmplExercises);
+}
+
+function removeTmplEx(i){tmplExercises.splice(i,1);renderTmplExList(tmplExercises);}
+
+function pickIcon(el){
+  document.querySelectorAll('.icon-opt').forEach(o=>o.style.border='2px solid transparent');
+  el.style.border='2px solid #007aff';
+  selectedIcon=el.textContent;
+}
+
+function saveTmpl(){
+  const name=document.getElementById('tmpl-name-input').value.trim();
+  if(!name){alert('Введи название');return;}
+  if(tmplExercises.length===0){alert('Добавь хотя бы одно упражнение');return;}
+  if(editTmplId){
+    const idx=templates.findIndex(t=>t.id===editTmplId);
+    templates[idx]={...templates[idx],name,icon:selectedIcon,exercises:[...tmplExercises]};
+  } else {
+    templates.push({id:'t'+Date.now(),name,icon:selectedIcon,exercises:[...tmplExercises]});
+  }
+  save();goHome();
+}
+
+// ===================== PRE-START =====================
+function openPrestart(tmplId){
+  currentTmpl=templates.find(t=>t.id===tmplId);
+  document.getElementById('prestart-title').textContent=currentTmpl.name;
+  const lastW=getLastWorkout(tmplId);
+  const list=document.getElementById('prestart-list');
+  todayWeights={};
+  list.innerHTML=currentTmpl.exercises.map((ex,i)=>{
+    const lastEx=lastW?lastW.exercises.find(e=>e.name===ex.name):null;
+    const lastInfo=lastEx?`Прошлый раз: ${lastEx.workSets||lastEx.sets}×${lastEx.reps} · ${lastEx.weight} кг`:'Первый раз';
+    todayWeights[i]=lastEx?lastEx.weight:ex.weight;
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:22px">${exIcons[ex.name]||'🏋️'}</div>
+        <div><div style="font-weight:600;font-size:15px">${ex.name}</div><div style="font-size:12px;color:#8e8e93">${lastInfo}</div></div>
+      </div>
+      <label class="label">Вес сегодня (кг)</label>
+      <input type="number" id="tw-${i}" value="${todayWeights[i]||0}" min="0" step="2.5" onchange="todayWeights[${i}]=parseFloat(this.value)||0">
+    </div>`;
+  }).join('');
+  showScreen('s-prestart');
+}
+
+function startWorkout(){
+  currentTmpl.exercises.forEach((_,i)=>{
+    const inp=document.getElementById('tw-'+i);
+    if(inp)todayWeights[i]=parseFloat(inp.value)||0;
+  });
+  session={
+    tmplId:currentTmpl.id,
+    tmplName:currentTmpl.name,
+    startTime:Date.now(),
+    exercises:[],
+    exIdx:0,
+    currentSets:[]
+  };
+  startExercise(0);
+}
+
+// ===================== ACTIVE EXERCISE =====================
+function startExercise(idx){
+  session.exIdx=idx;
+  session.currentSets=[];
+  const ex=currentTmpl.exercises[idx];
+  document.getElementById('ex-name-display').textContent=(exIcons[ex.name]||'🏋️')+' '+ex.name;
+
+  const lastW=getLastWorkout(currentTmpl.id);
+  const lastEx=lastW?lastW.exercises.find(e=>e.name===ex.name):null;
+  document.getElementById('ex-prev-display').textContent=lastEx?`Прошлый раз: ${lastEx.workSets||lastEx.sets}×${lastEx.reps} · ${lastEx.weight} кг`:'Первый раз';
+
+  const w=todayWeights[idx]||ex.weight||0;
+  document.getElementById('ex-weight-display').textContent=w;
+  session.currentWeight=w;
+
+  const total=currentTmpl.exercises.length;
+  document.getElementById('ex-progress-text').textContent=`${idx+1} из ${total}`;
+  document.getElementById('ex-progress-bar').style.width=`${((idx)/total)*100}%`;
+
+  document.getElementById('sets-list').innerHTML='';
+  document.getElementById('active-set-form').style.display='none';
+  session.pendingSetType=null;
+  showScreen('s-exercise');
+}
+
+function adjustWeight(delta){
+  session.currentWeight=Math.max(0,Math.round((session.currentWeight+delta)*2)/2);
+  document.getElementById('ex-weight-display').textContent=session.currentWeight;
+}
+
+function addSet(type){
+  session.pendingSetType=type;
+  const form=document.getElementById('active-set-form');
+  const repsInp=document.getElementById('set-reps-inp');
+  const weightInp=document.getElementById('set-weight-inp');
+  const ex=currentTmpl.exercises[session.exIdx];
+  const defaultReps=ex.reps||8;
+  const defaultW=type==='warm'?Math.round(session.currentWeight*0.6/2.5)*2.5:session.currentWeight;
+  repsInp.value=defaultReps;
+  weightInp.value=defaultW;
+  form.style.display='block';
+  repsInp.focus();
+}
+
+function completeSet(){
+  const reps=parseInt(document.getElementById('set-reps-inp').value)||8;
+  const weight=parseFloat(document.getElementById('set-weight-inp').value)||session.currentWeight;
+  const type=session.pendingSetType;
+  const setNum=session.currentSets.length+1;
+  session.currentSets.push({type,reps,weight,num:setNum});
+  document.getElementById('active-set-form').style.display='none';
+  renderSets();
+  startTimer(type==='warm'?60:90);
+}
+
+function renderSets(){
+  const list=document.getElementById('sets-list');
+  if(session.currentSets.length===0){list.innerHTML='<div style="color:#8e8e93;font-size:14px;text-align:center;padding:12px">Нет выполненных подходов</div>';return;}
+  list.innerHTML=session.currentSets.map((s,i)=>`
+    <div class="set-row">
+      <div class="set-num ${s.type==='warm'?'set-warm':'set-done'}">${i+1}</div>
+      <div class="set-info">
+        <span class="badge ${s.type==='warm'?'badge-warm':'badge-work'}">${s.type==='warm'?'Разминка':'Рабочий'}</span>
+        ${s.reps} повт · ${s.weight} кг
+      </div>
+      <button class="btn-sm red" style="padding:3px 8px;font-size:11px" onclick="removeSet(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeSet(i){session.currentSets.splice(i,1);renderSets();}
+
+function finishExercise(){
+  const ex=currentTmpl.exercises[session.exIdx];
+  const workSets=session.currentSets.filter(s=>s.type==='work');
+  const warmSets=session.currentSets.filter(s=>s.type==='warm');
+  session.exercises.push({
+    name:ex.name,
+    weight:session.currentWeight,
+    sets:session.currentSets.length,
+    workSets:workSets.length,
+    warmSets:warmSets.length,
+    reps:workSets.length>0?Math.round(workSets.reduce((a,s)=>a+s.reps,0)/workSets.length):0,
+    allSets:session.currentSets
+  });
+  showNextScreen();
+}
+
+function skipExercise(){
+  const ex=currentTmpl.exercises[session.exIdx];
+  session.exercises.push({name:ex.name,weight:0,sets:0,workSets:0,warmSets:0,reps:0,allSets:[],skipped:true});
+  showNextScreen();
+}
+
+function showNextScreen(){
+  const total=currentTmpl.exercises.length;
+  const done=session.exercises.length;
+  const prev=session.exercises[session.exercises.length-1];
+
+  // Summary of prev exercise
+  const workS=prev.allSets?prev.allSets.filter(s=>s.type==='work'):[];
+  const warmS=prev.allSets?prev.allSets.filter(s=>s.type==='warm'):[];
+  let summaryHtml=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${exIcons[prev.name]||'🏋️'} ${prev.name}</div>`;
+  if(prev.skipped){summaryHtml+='<div style="color:#8e8e93;font-size:14px">Пропущено</div>';}
+  else{
+    summaryHtml+=`<div class="summary-grid">
+      <div class="sum-card"><div class="sum-val">${prev.workSets}</div><div class="sum-label">рабочих</div></div>
+      <div class="sum-card"><div class="sum-val">${prev.warmSets}</div><div class="sum-label">разминочных</div></div>
+    </div>`;
+    if(workS.length>0)summaryHtml+=workS.map(s=>`<div style="font-size:14px;color:#8e8e93;margin-bottom:4px">${s.reps} повт · ${s.weight} кг</div>`).join('');
+  }
+  document.getElementById('prev-ex-summary').innerHTML=summaryHtml;
+
+  // Remaining exercises
+  const remaining=currentTmpl.exercises.slice(done);
+  const opts=document.getElementById('next-ex-options');
+  if(remaining.length===0){
+    opts.innerHTML='<div style="font-size:16px;font-weight:600;color:#34c759;text-align:center;padding:16px">Все упражнения выполнены!</div>';
+    document.getElementById('start-next-btn').style.display='none';
+  } else {
+    opts.innerHTML=remaining.map((ex,i)=>`
+      <div class="next-ex-item ${i===0?'selected':''}" onclick="selectNextEx(this,${done+i})">
+        <div style="font-size:22px">${exIcons[ex.name]||'🏋️'}</div>
+        <div><div style="font-weight:600;font-size:15px">${ex.name}</div><div style="font-size:12px;color:#8e8e93">${ex.sets}×${ex.reps} · ${todayWeights[currentTmpl.exercises.indexOf(ex)]||ex.weight} кг</div></div>
+        ${i===0?'<span style="font-size:11px;background:#007aff;color:#fff;border-radius:6px;padding:2px 8px;font-weight:600">Следующий</span>':''}
+      </div>`).join('');
+    session._nextExIdx=done;
+    document.getElementById('start-next-btn').style.display='block';
+  }
+  showScreen('s-next');
+}
+
+function selectNextEx(el,idx){
+  document.querySelectorAll('.next-ex-item').forEach(e=>{e.classList.remove('selected');e.querySelector('span')&&e.querySelector('span:last-child')&&(e.querySelector('span:last-child').style.display='none');});
+  el.classList.add('selected');
+  session._nextExIdx=idx;
+}
+
+function startNextExercise(){
+  const idx=session._nextExIdx;
+  if(idx===undefined)return;
+  startExercise(idx);
+}
+
+function finishWorkoutFull(){
+  const dur=Math.round((Date.now()-session.startTime)/60000);
+  const record={id:'w'+Date.now(),date:new Date().toISOString(),tmplId:session.tmplId,tmplName:session.tmplName,duration:dur,exercises:session.exercises};
+  history.unshift(record);
+  save();
+  renderSummary(record);
+  showScreen('s-summary');
+}
+
+function renderSummary(record){
+  const totalWork=record.exercises.reduce((a,e)=>a+e.workSets,0);
+  const totalWarm=record.exercises.reduce((a,e)=>a+e.warmSets,0);
+  document.getElementById('summary-content').innerHTML=`
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-val">${record.duration}</div><div class="sum-label">минут</div></div>
+      <div class="sum-card"><div class="sum-val">${record.exercises.length}</div><div class="sum-label">упражнений</div></div>
+      <div class="sum-card"><div class="sum-val">${totalWork}</div><div class="sum-label">рабочих подх.</div></div>
+      <div class="sum-card"><div class="sum-val">${totalWarm}</div><div class="sum-label">разминочных</div></div>
+    </div>
+    ${record.exercises.map(e=>`
+      <div class="card" style="margin-bottom:10px">
+        <div style="font-weight:600;font-size:15px;margin-bottom:6px">${exIcons[e.name]||'🏋️'} ${e.name}</div>
+        ${e.skipped?'<div style="color:#8e8e93;font-size:13px">Пропущено</div>':
+        `<div style="font-size:13px;color:#8e8e93">${e.workSets} рабочих × ${e.reps} повт · ${e.weight} кг${e.warmSets>0?' · '+e.warmSets+' разм.':''}</div>`}
+      </div>`).join('')}
+    <button class="btn-primary" style="margin-top:8px" onclick="goHome()">На главную</button>`;
+}
+
+// ===================== TIMER =====================
+function startTimer(seconds){
+  timerRemain=seconds;
+  document.getElementById('timer-num').textContent=seconds;
+  document.getElementById('timer-overlay').style.display='flex';
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timerRemain--;
+    document.getElementById('timer-num').textContent=timerRemain;
+    if(timerRemain<=0){skipTimer();}
+  },1000);
+}
+
+function skipTimer(){
+  clearInterval(timerInterval);
+  document.getElementById('timer-overlay').style.display='none';
+}
+
+// ===================== STATS =====================
+function renderStats(){
+  const total=history.length;
+  const now=new Date();
+  const weekStart=new Date(now);weekStart.setDate(now.getDate()-now.getDay());
+  const thisWeek=history.filter(w=>new Date(w.date)>=weekStart).length;
+  const totalSets=history.reduce((a,w)=>a+w.exercises.reduce((b,e)=>b+e.workSets,0),0);
+  let streak=0;const dates=[...new Set(history.map(w=>new Date(w.date).toDateString()))];
+  let check=new Date();
+  while(dates.includes(check.toDateString())){streak++;check.setDate(check.getDate()-1);}
+
+  const exCount={};
+  history.forEach(w=>w.exercises.forEach(e=>{if(!e.skipped)exCount[e.name]=(exCount[e.name]||0)+1;}));
+  const top=Object.entries(exCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  document.getElementById('stats-content').innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-c"><div class="stat-v">${total}</div><div class="stat-l">тренировок всего</div></div>
+      <div class="stat-c"><div class="stat-v">${thisWeek}</div><div class="stat-l">эта неделя</div></div>
+      <div class="stat-c"><div class="stat-v">${totalSets}</div><div class="stat-l">рабочих подходов</div></div>
+      <div class="stat-c"><div class="stat-v">${streak}</div><div class="stat-l">дней подряд</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:10px">Топ упражнений</div>
+      ${top.length===0?'<div style="color:#8e8e93;font-size:14px">Нет данных</div>':top.map(([name,count])=>{
+        const pct=Math.round((count/top[0][1])*100);
+        return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px;font-weight:500">${exIcons[name]||'🏋️'} ${name}</span><span style="font-size:13px;color:#8e8e93">${count}×</span></div><div style="height:6px;background:#f2f2f7;border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#007aff;border-radius:3px"></div></div></div>`;
+      }).join('')}
+    </div>`;
+}
+
+// Intercept showScreen for stats
+const _origShow=showScreen;
+window.showScreen=function(id){
+  _origShow(id);
+  if(id==='s-stats')renderStats();
+};
+
+// INIT — add demo template if empty
+if(templates.length===0){
+  templates=[{id:'t1',name:'Тяни',icon:'💪',exercises:[
+    {name:'Становая тяга',sets:4,reps:5,weight:120},
+    {name:'Тяга к поясу',sets:4,reps:8,weight:80},
+    {name:'Подтягивания',sets:3,reps:8,weight:0},
+    {name:'Бицепс со штангой',sets:3,reps:10,weight:40}
+  ]},{id:'t2',name:'Жми',icon:'🏋️',exercises:[
+    {name:'Жим лёжа',sets:4,reps:5,weight:100},
+    {name:'Жим стоя',sets:4,reps:8,weight:60},
+    {name:'Разводка',sets:3,reps:12,weight:20},
+    {name:'Трицепс на блоке',sets:3,reps:12,weight:30}
+  ]}];
+  save();
+}
+renderHome();
+</script>
